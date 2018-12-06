@@ -8,5 +8,5 @@ Grazie a [phate89](https://github.com/phate89/) per il vecchio Addon dal quale h
 Grazie a Mediaset per le API e i contenuti.
 
 # Installazione
-Per installare l'addon [scaricate il file ZIP(https://github.com/kodi-bino/plugin.video.mediasetplay/archive/1.0.0.zip)] e installatelo normalmente, i requisiti dovrebbero essere soddisfatti automaticamente.
+Per installare l'addon [scaricate il file ZIP](https://github.com/kodi-bino/plugin.video.mediasetplay/archive/1.0.0.zip) e installatelo normalmente, i requisiti dovrebbero essere soddisfatti automaticamente.
 Testato su Kodi 18 RC2 su Windows 10 e LibreElec 8.90 (su Raspberry).
