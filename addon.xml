@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.mediasetplay" name="Mediaset Play" version="1.0.0" provider-name="kodi-bino">
+	<requires>
+		<import addon="xbmc.python" version="2.14.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.beautifulsoup4" version="4.3.1" />
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="main.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<platform>all</platform>
+		<summary lang="en">Mediaset Play</summary>
+		<description lang="en">This plugin allow to browse and watch videos from Mediaset Play website</description>
+        <summary lang="it">Mediaset Play</summary>
+		<description lang="it">Questo plugin permette di sfogliare e visualizzare i video presenti sul sito di Mediaset Play</description>
+		<license>GNU General Public License, v2</license>
+		<language>it</language>
+		<source>https://github.com/kodi-bino/plugin.video.mediasetplay</source>
+		<website>Kodi.tv</website>
+		<assets>
+			<icon>icon.png</icon>
+		</assets>
+		<news>1.0.0 - First Release</news>
+	</extension>
+</addon>
