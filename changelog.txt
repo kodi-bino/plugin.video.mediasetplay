@@ -2,6 +2,6 @@
 
 1.0.1 - 19/12/2018
 - Fix errore SSL: CERTIFICATE_VERIFY_FAILED su alcune installazioni
-- Aggiunta la possibilit‡ di segnare un elemento come gi‡ visto
+- Aggiunta la possibilit√† di segnare un elemento come gi√† visto
 - Migliorata la visualizzazione dell'elenco video
 - Testato con Kodi 17.6 su Windows 10 
