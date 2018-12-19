@@ -1,1 +1,7 @@
 1.0.0 First Release
+
+1.0.1 - 19/12/2018
+- Fix errore SSL: CERTIFICATE_VERIFY_FAILED su alcune installazioni
+- Aggiunta la possibilità di segnare un elemento come già visto
+- Migliorata la visualizzazione dell'elenco video
+- Testato con Kodi 17.6 su Windows 10 
