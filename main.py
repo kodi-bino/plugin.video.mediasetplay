@@ -7,6 +7,7 @@ import xbmcplugin
 import xbmcgui
 import xbmc
 import json
+import urllib2
 
 from resources.lib.mediaset import mediaset
 from resources.lib.utils import utils
@@ -66,10 +67,35 @@ def router(paramstring):
                             mediaset.listOnDemandCategories(_handle, _url, params['category'])
                     else:
                         mediaset.listOnDemandCategories(_handle, _url)
+            if params['type'] == 'cult':
+                if 'feedUrl' in params:
+                    mediaset.listCultVideos(_handle, _url, params['feedUrl'])
+                
+                mediaset.listCultCategories(_handle, _url)
+                
+            if params['type'] == 'most_viewed':
+                    mediaset.listMostViewedVideos(_handle, _url)
+                    
+            if params['type'] == 'info':
+                    mediaset.listInfoVideos(_handle, _url)
                 
         elif params['action'] == 'play':
-            item = xbmcgui.ListItem(path = params['url'])
-            xbmcplugin.setResolvedUrl(_handle, True, item)
+            # solves final url to grab mpd file
+                        
+            req = urllib2.build_opener()
+            req.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0')]
+            response = req.open(params['url'])
+            params['url'] = response.geturl()
+            
+            liz = xbmcgui.ListItem(path = params['url'])
+            
+            # To use inputstream.adaptive
+            liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+            liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+            liz.setMimeType('application/dash+xml')
+            liz.setContentLookup(False)
+                        
+            xbmcplugin.setResolvedUrl(_handle, True, liz)
         else:
             # If the provided paramstring does not contain a supported action
             # we raise an exception. This helps to catch coding errors,

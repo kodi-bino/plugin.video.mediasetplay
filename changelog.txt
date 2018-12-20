@@ -1,7 +1,13 @@
-1.0.0 First Release
+﻿1.0.0 First Release
 
 1.0.1 - 19/12/2018
 - Fix errore SSL: CERTIFICATE_VERIFY_FAILED su alcune installazioni
 - Aggiunta la possibilità di segnare un elemento come già visto
 - Migliorata la visualizzazione dell'elenco video
 - Testato con Kodi 17.6 su Windows 10 
+
+1.1.0 - 20/12/2018
+- Il plugin ora riproduce i video mediante inputstream.adaptive (che è ora obbligatorio) per risolvere problemi con la riproduzione su device Android
+- Aggiunta sezione Play Cult
+- Aggiunta sezione I Più visti del giorno
+- Aggiunta sezione Informazione

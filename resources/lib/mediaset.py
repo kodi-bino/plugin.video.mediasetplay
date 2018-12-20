@@ -37,6 +37,9 @@ class mediaset():
         
         menu.append({"label": "Canali Live", 'url': {'action':'list', 'type': 'live'}})
         menu.append({"label": "Programmi On Demand", 'url': {'action':'list', 'type': 'ondemand'}})
+        menu.append({"label": "Play Cult", 'url': {'action':'list', 'type': 'cult'}})
+        menu.append({"label": "I più visti del giorno", 'url': {'action':'list', 'type': 'most_viewed'}})
+        menu.append({"label": "Informazione", 'url': {'action':'list', 'type': 'info'}})
         
         return menu
         
@@ -234,9 +237,6 @@ class mediaset():
                         biggestThumb = entry['thumbnails'][thumb]['url']
                         break
                 
-            if entry['mediasetprogram$videoPageUrl'].find('http') == -1:
-                entry['mediasetprogram$videoPageUrl'] = 'http:' + entry['mediasetprogram$videoPageUrl']
-                
             if len(biggestThumb) < 1:
                 iconimage = ''
             else:
@@ -253,21 +253,7 @@ class mediaset():
             liz.setInfo(type="Video", infoLabels={"Title": entry['title'], "plot": entry['description'], "plotoutline": entry['description'], 'duration': entry['mediasetprogram$duration']})
             
             xbmcplugin.addDirectoryItem(_handle, url, liz, isFolder=False)
-            '''        
-            list_item = xbmcgui.ListItem(label=entry['title'])
-            list_item.setInfo('video', {
-                                    'title': entry['title'],
-                                    'plot': entry['description'],
-                                    'duration': entry['mediasetprogram$duration'],
-                                    'year': entry['year'],
-                        })
-            list_item.setArt({'thumb': biggestThumb, 'icon': biggestThumb})    
-            is_folder = False
-            list_item.setProperty('IsPlayable', 'true')
-            url = utils.get_url(_url, action='play',type="ondemand", url=entry['media'][0]['publicUrl'])         
-            xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
-            '''
-        
+       
         
         # Finish creating a virtual folder.
         xbmcplugin.endOfDirectory(_handle)           
@@ -279,7 +265,7 @@ class mediaset():
         except:
             apiData = self.apiLogin()
             
-        if 'expire' not in apiData or not apiData or apiData['expire'] < datetime.now().strftime('%Y-%m-%d %H:%M:%S'):
+        if 'expire' not in apiData or not apiData or apiData['expire'] < datetime.now().strftime('%Y-%m-%d %H:%M:%S') or 'traceCid' not in apiData or 'cwId' not in apiData:
             apiData = self.apiLogin()
             
         return apiData
@@ -294,14 +280,16 @@ class mediaset():
         
         headers = {'Content-type': 'application/json'}
         response = requests.post(url, data=json.dumps(data), headers=headers)
-        
+        xbmc.log(response.content, 2)
         data = json.loads(response.content)
         
         if 'isOk' in data and data['isOk']:
             apiData = {
                     "t-apigw": response.headers.get('t-apigw'),
                     "t-cts": response.headers.get('t-cts'),
-                    "expire": datetime.now() + timedelta(hours=6)
+                    "expire": datetime.now() + timedelta(hours=6),
+                    "traceCid": data['response']['traceCid'],
+                    "cwId": data['response']['cwId']
             }
             apiData['expire'] = apiData['expire'].strftime('%Y-%m-%d %H:%M:%S')
             
@@ -312,3 +300,238 @@ class mediaset():
         else:
             dialog = xbmcgui.Dialog()
             ok = dialog.ok('Errore!', 'Impossibile eseguire il login sul sito Mediaset Play, contattare gli sviluppatori se il problema persiste')
+            
+    def listCultCategories(self, _handle, _url):
+        apiUrl = "https://api.one.accedo.tv/content/entries?id=5c0ff3961de1c4001a25b90a%2C5c13c4f41de1c4001911ef76%2C5c13bfb71de1c400198ea30f%2C5c175cbea0e845001ac6e06e%2C5c175dbc1de1c400198ea38a%2C5c175f3e23eec6001a23240c%2C5c175fb223eec6001a0433a6%2C5c175feb23eec6001a3a06ab%2C5c17603da0e845001ba8f300%2C5c17675b23eec6001a1e73b8&locale=it"
+        
+        sessionId = self.accedoApiKey()
+        
+        if sessionId == False:
+            dialog = xbmcgui.Dialog()
+            ok = dialog.ok('Errore!', 'Impossibile ottenere una chiave AccedoTv valida, contattare gli sviluppatori se il problema persiste')
+            
+        apiUrl = apiUrl + '&sessionKey=' + sessionId
+        
+        # LOAD JSON
+        # To Fix SSL: CERTIFICATE_VERIFY_FAILED on Kodi 17.6
+        ssl._create_default_https_context = ssl._create_unverified_context
+        
+        response = urllib2.urlopen(apiUrl)
+        data = json.load(response) 
+        
+        if 'entries' in data:
+            for entry in data['entries']:
+                
+                if 'title' not in entry:
+                    continue
+            
+                if 'brandDescription' in entry:
+                    soup = BeautifulSoup(entry['brandDescription'], "html.parser")
+                    entry['brandDescription'] = soup.text
+                else:
+                    entry['brandDescription'] = ''
+                    
+                entry['title'] = entry['title'].upper()
+            
+                list_item = xbmcgui.ListItem(label=entry['title'])
+                list_item.setInfo('video', {
+                                    'title': entry['title'],
+                                    'plot': entry['brandDescription']
+                        })
+                
+                # list_item.setArt({'thumb': biggestThumb, 'icon': biggestThumb, 'fanart': biggestThumb})
+                is_folder = True
+                
+                url = utils.get_url(_url, action='list', type='cult', feedUrl = entry['feedurl'])
+                xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
+                
+        # Add a sort method for the virtual folder items (alphabetically, ignore articles)
+        xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_VIDEO_TITLE)
+        # Finish creating a virtual folder.
+        xbmcplugin.endOfDirectory(_handle)  
+        
+    def listCultVideos(self, _handle, _url, _feedUrl):
+        apiUrl = _feedUrl
+        
+        # LOAD JSON
+        # To Fix SSL: CERTIFICATE_VERIFY_FAILED on Kodi 17.6
+        ssl._create_default_https_context = ssl._create_unverified_context
+        
+        response = urllib2.urlopen(apiUrl)
+        data = json.load(response)   
+        
+        for entry in data['entries']:
+            # get best thumbnail available
+                    
+            thumbs = [];        
+            for thumb in entry['thumbnails']: 
+                if thumb.find('image_keyframe_poster-') != -1:
+                    thumb = thumb.replace('image_keyframe_poster-', '')
+                    thumbs.append(int(thumb.split('x')[0]))
+                    
+            thumbs.sort(reverse=True)
+            
+            biggestThumb = ''
+            
+            if thumbs[0]:
+                for thumb in entry['thumbnails']: 
+                    if thumb.find('image_keyframe_poster-' + str(thumbs[0])) != -1 and 'url' in entry['thumbnails'][thumb]:
+                        biggestThumb = entry['thumbnails'][thumb]['url']
+                        break
+                
+            if len(biggestThumb) < 1:
+                iconimage = ''
+            else:
+                iconimage = biggestThumb
+                
+            liz = xbmcgui.ListItem(entry['title'], iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+            liz.setArt({'thumb': iconimage, 'icon': iconimage})            
+            liz.setArt({'poster': iconimage})
+            liz.setArt({'fanart': iconimage})
+            liz.setProperty('IsPlayable', 'true')
+            
+            url = utils.get_url(_url, action='play',type="cult", url=entry['media'][0]['publicUrl'])
+            
+            liz.setInfo(type="Video", infoLabels={"Title": entry['title'], "plot": entry['description'], "plotoutline": entry['description'], 'duration': entry['mediasetprogram$duration']})
+            
+            xbmcplugin.addDirectoryItem(_handle, url, liz, isFolder=False)
+       
+        
+        # Finish creating a virtual folder.
+        xbmcplugin.endOfDirectory(_handle)           
+        
+        
+    def accedoApiKey(self):
+        apiUrl = 'https://api.one.accedo.tv/session?appKey=59ad346f1de1c4000dfd09c5&uuid=' + str(uuid.uuid4())
+    
+        # LOAD JSON
+        # To Fix SSL: CERTIFICATE_VERIFY_FAILED on Kodi 17.6
+        ssl._create_default_https_context = ssl._create_unverified_context
+        
+        response = urllib2.urlopen(apiUrl)
+        data = json.load(response)
+        
+        if 'sessionKey' in data:
+            return data['sessionKey']
+            
+        return False
+        
+    def listMostViewedVideos(self, _handle, _url):
+        apiData = self.getApiData()
+        
+        apiUrl = "https://api-ott-prod-fe.mediaset.net/PROD/play/rec/cataloguelisting/v1.0?uxReference=CWTOPVIEWEDDAY&platform=pc&traceCid=%traceCid%&cwId=%cwId%".replace('%traceCid%', apiData['traceCid']).replace('%cwId%', apiData['cwId'])
+         
+        # To Fix SSL: CERTIFICATE_VERIFY_FAILED on Kodi 17.6
+        ssl._create_default_https_context = ssl._create_unverified_context
+         
+        headers = {
+            't-apigw': apiData['t-apigw'],
+            't-cts': apiData['t-cts'],
+            'Accept': 'application/json'
+        }
+        response = requests.get(apiUrl, False, headers=headers)
+        
+        data = json.loads(response.content) 
+        
+        if 'isOk' in data and data['isOk']:
+            for entry in data['response']['entries']:
+                if not 'description' in entry:
+                    entry['description'] = ''
+                else:
+                    soup = BeautifulSoup(entry['description'], "html.parser")
+                    entry['description'] = soup.text
+                    
+                entry['title'] = entry['mediasetprogram$brandTitle'].upper() + ' - ' + entry['title']
+                    
+                # get best thumbnail available    
+                thumbs = [];        
+                for thumb in entry['thumbnails']: 
+                    if thumb.find('image_keyframe_poster-') != -1:
+                        thumb = thumb.replace('image_keyframe_poster-', '')
+                        thumbs.append(int(thumb.split('x')[0]))
+                        
+                thumbs.sort(reverse=True)
+                
+                biggestThumb = ''
+                
+                if thumbs[0]:
+                    for thumb in entry['thumbnails']: 
+                        if thumb.find('image_keyframe_poster-' + str(thumbs[0])) != -1 and 'url' in entry['thumbnails'][thumb]:
+                            biggestThumb = entry['thumbnails'][thumb]['url']
+                            break
+                    
+                if len(biggestThumb) < 1:
+                    iconimage = ''
+                else:
+                    iconimage = biggestThumb
+                    
+                liz = xbmcgui.ListItem(entry['title'], iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+                liz.setArt({'thumb': iconimage, 'icon': iconimage})            
+                liz.setArt({'poster': iconimage})
+                liz.setArt({'fanart': iconimage})
+                liz.setProperty('IsPlayable', 'true')
+                
+                url = utils.get_url(_url, action='play',type="most_viewed", url=entry['media'][0]['publicUrl'])
+                
+                liz.setInfo(type="Video", infoLabels={"Title": entry['title'], "plot": entry['description'], "plotoutline": entry['description'], 'duration': entry['mediasetprogram$duration']})
+                
+                xbmcplugin.addDirectoryItem(_handle, url, liz, isFolder=False)
+
+        # Finish creating a virtual folder.
+        xbmcplugin.endOfDirectory(_handle)   
+    
+    def listInfoVideos(self, _handle, _url):
+        apiUrl = 'https://feed.entertainment.tv.theplatform.eu/f/PR1GhC/mediaset-prod-all-programs?byCustomValue={mediasetprogram$brandId}{640991|630990|620989|8252083|152488|591607|10412642|8212078|1192474}&byProgramType=episode&sort=mediasetprogram$publishInfo_lastPublished|desc&range=0-100'
+        
+        # To Fix SSL: CERTIFICATE_VERIFY_FAILED on Kodi 17.6
+        ssl._create_default_https_context = ssl._create_unverified_context
+        
+        response = urllib2.urlopen(apiUrl)
+        data = json.load(response)   
+        
+        for entry in data['entries']:
+            entry['title'] = entry['mediasetprogram$brandTitle'].upper() + ' - ' + entry['title']
+            
+            if not 'description' in entry:
+                entry['description'] = ''
+            else:
+                soup = BeautifulSoup(entry['description'], "html.parser")
+                entry['description'] = soup.text
+            
+            # get best thumbnail available            
+            thumbs = [];        
+            for thumb in entry['thumbnails']: 
+                if thumb.find('image_keyframe_poster-') != -1:
+                    thumb = thumb.replace('image_keyframe_poster-', '')
+                    thumbs.append(int(thumb.split('x')[0]))
+                    
+            thumbs.sort(reverse=True)
+            
+            biggestThumb = ''
+            
+            if thumbs[0]:
+                for thumb in entry['thumbnails']: 
+                    if thumb.find('image_keyframe_poster-' + str(thumbs[0])) != -1 and 'url' in entry['thumbnails'][thumb]:
+                        biggestThumb = entry['thumbnails'][thumb]['url']
+                        break
+                
+            if len(biggestThumb) < 1:
+                iconimage = ''
+            else:
+                iconimage = biggestThumb
+                
+            liz = xbmcgui.ListItem(entry['title'], iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+            liz.setArt({'thumb': iconimage, 'icon': iconimage})            
+            liz.setArt({'poster': iconimage})
+            liz.setArt({'fanart': iconimage})
+            liz.setProperty('IsPlayable', 'true')
+            
+            url = utils.get_url(_url, action='play',type="info", url=entry['media'][0]['publicUrl'])
+            
+            liz.setInfo(type="Video", infoLabels={"Title": entry['title'], "plot": entry['description'], "plotoutline": entry['description'], 'duration': entry['mediasetprogram$duration']})
+            
+            xbmcplugin.addDirectoryItem(_handle, url, liz, isFolder=False)
+       
+        
+        # Finish creating a virtual folder.
+        xbmcplugin.endOfDirectory(_handle)
