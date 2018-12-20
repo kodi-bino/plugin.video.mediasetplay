@@ -280,7 +280,7 @@ class mediaset():
         
         headers = {'Content-type': 'application/json'}
         response = requests.post(url, data=json.dumps(data), headers=headers)
-        xbmc.log(response.content, 2)
+        
         data = json.loads(response.content)
         
         if 'isOk' in data and data['isOk']:

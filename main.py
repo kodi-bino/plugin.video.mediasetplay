@@ -80,22 +80,26 @@ def router(paramstring):
                     mediaset.listInfoVideos(_handle, _url)
                 
         elif params['action'] == 'play':
-            # solves final url to grab mpd file
-                        
-            req = urllib2.build_opener()
-            req.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0')]
-            response = req.open(params['url'])
-            params['url'] = response.geturl()
-            
-            liz = xbmcgui.ListItem(path = params['url'])
-            
-            # To use inputstream.adaptive
-            liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
-            liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-            liz.setMimeType('application/dash+xml')
-            liz.setContentLookup(False)
-                        
+            version = xbmc.getInfoLabel('System.BuildVersion').split('.')[0]
+        
+            if int(version) < 18 and (xbmc.getCondVisibility('system.platform.linux') and xbmc.getCondVisibility('system.platform.android')):
+                # solves final url to grab mpd file
+                req = urllib2.build_opener()
+                req.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0')]
+                response = req.open(params['url'])
+                params['url'] = response.geturl()
+                
+                liz = xbmcgui.ListItem(path = params['url'])
+                # To use inputstream.adaptive
+                liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+                liz.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+                liz.setMimeType('application/dash+xml')
+                liz.setContentLookup(False)
+            else:
+                liz = xbmcgui.ListItem(path = params['url'])
+                            
             xbmcplugin.setResolvedUrl(_handle, True, liz)
+
         else:
             # If the provided paramstring does not contain a supported action
             # we raise an exception. This helps to catch coding errors,

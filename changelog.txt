@@ -11,3 +11,6 @@
 - Aggiunta sezione Play Cult
 - Aggiunta sezione I Più visti del giorno
 - Aggiunta sezione Informazione
+
+1.1.1 - 20/12/2018
+- I video sono serviti con InputStreamAdctive solo su Android per migliorare le performance e mantenere la compatibilità con Kodi 18
