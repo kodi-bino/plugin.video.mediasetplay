@@ -11,3 +11,4 @@ Grazie a Mediaset per le API e i contenuti.
 Se necessario abilitate il plugin Inputstream Adactive prime di eseguire l'installazione [ulteriori informazioni qui](https://seo-michael.co.uk/how-to-enable-rtmp-input-inputstream-adaptive-kodi/).
 Per installare l'addon [scaricate il file ZIP](https://github.com/kodi-bino/plugin.video.mediasetplay/archive/1.1.0.zip) e installatelo normalmente, gli altri requisiti dovrebbero essere soddisfatti automaticamente.
 Testato su Kodi 17.6 (Windows 10), Kodi 18 RC2 (Windows 10), LibreElec 8.90 (Raspberry PI 2), Kodi 17.6 (Android).
+
