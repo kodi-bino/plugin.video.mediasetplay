@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.mediasetplay" name="Mediaset Play" version="1.1.1" provider-name="kodi-bino">
+<addon id="plugin.video.mediasetplay" name="Mediaset Play" version="1.2.0" provider-name="kodi-bino">
 	<requires>
 		<import addon="xbmc.python" version="2.14.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
@@ -22,14 +22,8 @@
 		<assets>
 			<icon>icon.png</icon>
 		</assets>
-		<news>1.1.0 - 20/12/2018
-- Il plugin ora riproduce i video mediante inputstream.adaptive (che è ora obbligatorio) per risolvere problemi con la riproduzione su device Android
-- Aggiunta sezione Play Cult
-- Aggiunta sezione I Più visti del giorno
-- Aggiunta sezione Informazione
-
-1.1.1 - 20/12/2018
-- I video sono serviti con InputStreamAdctive solo su Android per migliorare le performance e mantenere la compatibilità con Kodi 18
+		<news>1.2.0 - 21/12/2018
+- Cambiato approccio per canali Live (i link usati in precedenza non ritornano ora 404), i nuovi link sembrano bloccati dall'estero
         </news>
 	</extension>
 </addon>

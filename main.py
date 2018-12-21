@@ -24,8 +24,6 @@ _url = sys.argv[0]
 # Get the plugin handle as an integer number.
 _handle = int(sys.argv[1])
 
-mediaset.getApiData()
-
 def get_url(**kwargs):
     """
     Create a URL for calling the plugin recursively from the given set of keyword arguments.
@@ -79,10 +77,13 @@ def router(paramstring):
             if params['type'] == 'info':
                     mediaset.listInfoVideos(_handle, _url)
                 
-        elif params['action'] == 'play':
+        elif params['action'] == 'play':     
             version = xbmc.getInfoLabel('System.BuildVersion').split('.')[0]
         
-            if int(version) < 18 and (xbmc.getCondVisibility('system.platform.linux') and xbmc.getCondVisibility('system.platform.android')):
+            if params['type'] == 'live':
+                params['url'] = mediaset.getLiveChannelUrl(params['callSign'])
+        
+            if int(version) < 18 and (xbmc.getCondVisibility('system.platform.linux') and xbmc.getCondVisibility('system.platform.android')) and params['type'] != 'live':
                 # solves final url to grab mpd file
                 req = urllib2.build_opener()
                 req.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0')]
@@ -97,7 +98,7 @@ def router(paramstring):
                 liz.setContentLookup(False)
             else:
                 liz = xbmcgui.ListItem(path = params['url'])
-                            
+                
             xbmcplugin.setResolvedUrl(_handle, True, liz)
 
         else:

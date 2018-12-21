@@ -14,3 +14,6 @@
 
 1.1.1 - 20/12/2018
 - I video sono serviti con InputStreamAdctive solo su Android per migliorare le performance e mantenere la compatibilità con Kodi 18
+
+1.2.0 - 21/12/2018
+- Cambiato approccio per canali Live (i link usati in precedenza non ritornano ora 404), i nuovi link sembrano bloccati dall'estero

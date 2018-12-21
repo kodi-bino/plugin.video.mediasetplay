@@ -43,53 +43,62 @@ class mediaset():
         
         return menu
         
-    def getLiveChannels(self):
-        url = "https://live3-mediaset-it.akamaized.net/content/hls_clr_xo/live/channel(ch{ch})/index.m3u8"
-
-        menu = []
-        
-        menu.append({'label':"Canale 5", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='01')},'thumb': IMAGE_PATH_T + "Canale_5.png"})
-        menu.append({'label':"Italia 1", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='02')},'thumb': IMAGE_PATH_T + "Italia_1.png"})
-        menu.append({'label':"Rete 4", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='03')},'thumb': IMAGE_PATH_T + "Rete_4.png"})
-        menu.append({'label':"Mediaset 20", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='25')},'thumb': IMAGE_PATH_T + "Mediaset_20.png"})
-        menu.append({'label':"La 5", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='04')},'thumb': IMAGE_PATH_T + "La_5.png"})
-        menu.append({'label':"Italia 2", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='05')},'thumb': IMAGE_PATH_T + "Italia_2.png"})
-        menu.append({'label':"Iris", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='06')},'thumb': IMAGE_PATH_T + "Iris.png"})
-        menu.append({'label':"Top Crime", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='07')},'thumb': IMAGE_PATH_T + "Top_Crime.png"})
-        menu.append({'label':"Mediaset Extra", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='09')},'thumb': IMAGE_PATH_T + "Mediaset_Extra.png"})
-        menu.append({'label':"TGCOM24", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='10')},'thumb': IMAGE_PATH_T + "TGCOM24.png"})
-        menu.append({'label':"Focus", 'url': {'action': 'play', 'type': 'live', 'url': url.format(ch='26')},'thumb': IMAGE_PATH_T + "Focus.png"})
-        
-        return menu
-        
     def displayLiveChannelsList(self, _handle, _url):
-        for v in self.getLiveChannels():
-            # Create a list item with a text label and a thumbnail image.
-            list_item = xbmcgui.ListItem(label=v['label'])
-            # Set additional info for the list item.
-            # 'mediatype' is needed for skin to display info for this ListItem correctly.
-            list_item.setInfo('video', {'title': v['label'],
-                                        'mediatype': 'video'})
-            # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
-            # Here we use the same image for all items for simplicity's sake.
-            # In a real-life plugin you need to set each image accordingly.
-            list_item.setArt({'thumb': v['thumb'], 'icon': v['thumb'], 'fanart': v['thumb']})
-            # Set 'IsPlayable' property to 'true'.
-            # This is mandatory for playable items!
-            list_item.setProperty('IsPlayable', 'true')
-            # Create a URL for a plugin recursive call.
-            # Example: plugin://plugin.video.example/?action=play&video=http://www.vidsplay.com/wp-content/uploads/2017/04/crab.mp4
-            url = utils.get_url(_url, action='play',type="live", url=v['url']['url'])
-            # Add the list item to a virtual Kodi folder.
-            # is_folder = False means that this item won't open any sub-list.
-            is_folder = False
-            # Add our item to the Kodi virtual folder listing.
-            xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
+        apiUrl = 'https://feed.entertainment.tv.theplatform.eu/f/PR1GhC/mediaset-prod-all-stations?bycallsign=&range=1-1000&fields=guid,title,callSign,thumbnails,mediasetstation$pageUrl'
+        
+        response = urllib2.urlopen(apiUrl)
+        data = json.load(response)  
+        
+        if 'entries' in data:
+            for entry in data['entries']:
+                if 'channel_logo-100x100' in entry['thumbnails']:
+                    icon = entry['thumbnails']['channel_logo-100x100']['url']
+                else:
+                    icon = 'DefaultVideo.png'
+            
+                list_item = xbmcgui.ListItem(label=entry['title'])
+                list_item.setInfo('video', {
+                                    'title': entry['title'],
+                        })
+                
+                list_item.setArt({'thumb': icon, 'icon': icon, 'fanart': icon})
+                list_item.setProperty('IsPlayable', 'true')
+                is_folder = False
+                
+                url = utils.get_url(_url, action='play', type='live', callSign = entry['callSign'])
+                xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
             
         # Add a sort method for the virtual folder items (alphabetically, ignore articles)
         xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_VIDEO_TITLE)
         # Finish creating a virtual folder.
         xbmcplugin.endOfDirectory(_handle)
+        
+    def getLiveChannelUrl(self, _callSign):
+        apiData = self.getApiData()
+        
+        apiUrl = "https://api-ott-prod-fe.mediaset.net/PROD/play/alive/nownext/v1.0?channelId=%callSign%".replace('%callSign%', _callSign)
+         
+        # To Fix SSL: CERTIFICATE_VERIFY_FAILED on Kodi 17.6
+        ssl._create_default_https_context = ssl._create_unverified_context
+         
+        headers = {
+            't-apigw': apiData['t-apigw'],
+            't-cts': apiData['t-cts'],
+            'Accept': 'application/json'
+        }
+        response = requests.get(apiUrl, False, headers=headers)
+        
+        data = json.loads(response.content)
+        
+        if 'isOk' in data and data['isOk']:
+            for entry in data['response']['tuningInstruction']['urn:theplatform:tv:location:any']:
+                if entry['format'] == 'application/x-mpegURL':
+                    return entry['publicUrls'][0]
+        
+        dialog = xbmcgui.Dialog()
+        ok = dialog.ok('Errore!', 'Impossibile risolvere correttamente l\'URL del live streaming')
+        
+        
         
     def listOnDemandCategories(self, _handle, _url, category = False):
         apiUrl = "https://static3.mediasetplay.mediaset.it/cataloglisting/azListing.json"
