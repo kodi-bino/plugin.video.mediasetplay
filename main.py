@@ -83,7 +83,7 @@ def router(paramstring):
             if params['type'] == 'live':
                 params['url'] = mediaset.getLiveChannelUrl(params['callSign'])
         
-            if int(version) < 18 and (xbmc.getCondVisibility('system.platform.linux') and xbmc.getCondVisibility('system.platform.android')) and params['type'] != 'live':
+            if (xbmc.getCondVisibility('system.platform.linux') and xbmc.getCondVisibility('system.platform.android')) and params['type'] != 'live':
                 # solves final url to grab mpd file
                 req = urllib2.build_opener()
                 req.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:64.0) Gecko/20100101 Firefox/64.0')]

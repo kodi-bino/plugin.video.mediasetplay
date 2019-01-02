@@ -17,3 +17,6 @@
 
 1.2.0 - 21/12/2018
 - Cambiato approccio per canali Live (i link usati in precedenza non ritornano ora 404), i nuovi link sembrano bloccati dall'estero
+
+1.2.1 - 02/01/2019
+- Fix riproduzione video su Android con versioni di Kodi superiori alla 17 (ora utilizza InputStreamAdactive sempre su Android)
