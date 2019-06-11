@@ -7,12 +7,20 @@ import xbmcplugin
 import xbmcgui
 import xbmc
 import json
-import urllib2
-
+try:
+  import urllib.request as urllib2
+except ImportError:
+    import urllib2
 from resources.lib.mediaset import mediaset
 from resources.lib.utils import utils
-from urllib import urlencode
-from urlparse import parse_qsl
+try:
+    from urllib.parse import urlencode
+except:
+    from urllib import urlencode
+try:
+  import urllib.parse as urlparse
+except ImportError:
+  import urlparse
 
 addon       = xbmcaddon.Addon()
 addonname   = addon.getAddonInfo('name')
@@ -44,7 +52,7 @@ def router(paramstring):
     """
     # Parse a URL-encoded paramstring to the dictionary of
     # {<parameter>: <value>} elements
-    params = dict(parse_qsl(paramstring))
+    params = dict(urlparse.parse_qsl(paramstring))
     # Check the parameters passed to the plugin
     if params:
         if params['action'] == 'list':
