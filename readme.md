@@ -16,6 +16,7 @@ Testato su Kodi 17.6 (Windows 10), Kodi 18.2, Kodi 18 RC2 (Windows 10), LibreEle
 
 # Known Issues
 I canali live non funzionano dall'estero, Mediaset ha attivato una georestrizione che non è possibile bypassare con il nuovo sistema.
+Alcuni programmi on demand non sono riproducibili a causa della presenza di un DRM.
 
 # Donazioni
 Se volete offrirmi una birra o darmi una mano con lo sviluppo potete donare Bitcoin all'indirizzo: 
