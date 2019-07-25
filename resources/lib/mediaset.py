@@ -4,7 +4,10 @@ import xbmcplugin
 import xbmcgui
 import xbmc
 import os
-import urllib2
+try:
+  import urllib.request as urllib2
+except ImportError:
+    import urllib2
 import json
 import requests
 import uuid
@@ -21,11 +24,20 @@ NAME = ADDON.getAddonInfo('name')
 VERSION = ADDON.getAddonInfo('version')
 PATH = ADDON.getAddonInfo('path')
 DATA_PATH = ADDON.getAddonInfo('profile')
-PATH_T = xbmc.translatePath(PATH).decode('utf-8')
-DATA_PATH_T = xbmc.translatePath(DATA_PATH).decode('utf-8')
+try:
+    PATH_T = xbmc.translatePath(PATH).decode('utf-8')
+except:
+    PATH_T = xbmc.translatePath(PATH)
+try:
+    DATA_PATH_T = xbmc.translatePath(DATA_PATH).decode('utf-8')
+except:
+    DATA_PATH_T = xbmc.translatePath(DATA_PATH)
 IMAGE_PATH_T = os.path.join(PATH_T, 'resources', 'media', "")
 LANGUAGE = ADDON.getLocalizedString
-PROFILE = xbmc.translatePath( ADDON.getAddonInfo('profile') ).decode("utf-8")
+try:
+    PROFILE = xbmc.translatePath( ADDON.getAddonInfo('profile') ).decode("utf-8")
+except:
+    PROFILE = xbmc.translatePath( ADDON.getAddonInfo('profile') )
 
 if not os.path.exists(PROFILE):
     os.makedirs(PROFILE)

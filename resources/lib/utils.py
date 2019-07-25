@@ -1,5 +1,8 @@
-from urllib import urlencode
-
+try:
+    from urllib.parse import urlencode
+except:
+    from urllib import urlencode
+    
 class utils():
 
     def get_url(self,_url, **kwargs):
