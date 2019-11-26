@@ -530,7 +530,7 @@ class mediaset():
             
             biggestThumb = ''
             
-            if thumbs[0]:
+            if thumbs and thumbs[0]:
                 for thumb in entry['thumbnails']: 
                     if thumb.find('image_keyframe_poster-' + str(thumbs[0])) != -1 and 'url' in entry['thumbnails'][thumb]:
                         biggestThumb = entry['thumbnails'][thumb]['url']

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.mediasetplay" name="Mediaset Play" version="1.2.2" provider-name="kodi-bino, cttynul">
+<addon id="plugin.video.mediasetplay" name="Mediaset Play" version="1.2.3" provider-name="kodi-bino, cttynul">
 	<requires>
-		<import addon="xbmc.python" version="2.14.0"/>
+		<import addon="xbmc.python" version="2.25.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
         <import addon="script.module.beautifulsoup4" version="4.3.1" />
         <import addon="inputstream.adaptive" version="2.0.19" />
@@ -22,14 +22,15 @@
 		<assets>
 			<icon>icon.png</icon>
 		</assets>
-		<news>1.2.0 - 21/12/2018
-- Cambiato approccio per canali Live (i link usati in precedenza non ritornano ora 404), i nuovi link sembrano bloccati dall'estero
-
-1.2.1 - 02/01/2019
+		<news>1.2.1 - 02/01/2019
 - Fix riproduzione video su Android con versioni di Kodi superiori alla 17 (ora utilizza InputStreamAdactive sempre su Android)
 
 1.2.2 - 11/06/2019
-- Aggiunta compatibilita' Python 3 e retrocompatibilita' Python 2.
+- Aggiunta compatibilita' Python 3 e retrocompatibilita' Python 2 (thanks to cttynul)
+
+1.2.3 - 26/11/2019
+- Fixato problema con mancanza di thumbnail in canali "Informazione"
+- Richiesta nuova versione di Python 2.25.0 per migliore compatibilità
         </news>
 	</extension>
 </addon>
